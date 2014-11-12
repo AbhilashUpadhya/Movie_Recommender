@@ -1,0 +1,204 @@
+<!-- From episode 7 -->
+
+<!doctype html>
+
+<html>
+
+	<head>
+		<title>Data Driven Document</title>
+		<script src = "http://d3js.org/d3.v3.min.js"></script>
+	</head>
+	
+	<body>
+		<script>
+		
+		
+			//episode 7
+			
+			/*
+			var data = [10, 20];//2 data elements
+			var data1 = [10];
+			//case1: data elements = DOM elements     case2: data elements > DOM elements      case3: data elements < DOM elements
+			
+			var canvas = d3.select("body")
+							.append("svg")
+							.attr("width",1000)
+							.attr("height",1000);
+								
+			/*var circle1 = canvas.append("circle")
+									.attr("cx",100)
+									.attr("cy",100)
+									.attr("r",25)
+									.attr("fill","blue");
+
+			var circle2 = canvas.append("circle")
+									.attr("cx",100)
+									.attr("cy",300)
+									.attr("r",25)
+									.attr("fill","blue");							
+									
+				
+			var circle = canvas.selectAll("circle")//for corresponding data elements. There are two data elements - 10 & 20 and two DOM elements - circle1 and circle2
+								//.data(data)	//for 2 data elements and 2 DOM elements OR DOM elements < Data elements	
+								.data(data1)  //when DOM elements > Data elements. 2 DOM elements - circle1 and circle2 and 1 data element 10
+								.attr("fill","red")		
+								/*.enter()//for all data elements which donot have DOM elements
+									.append("circle")
+									.attr("cx",100)
+									.attr("cy",200)
+									.attr("r",25)
+									.attr("fill","green");
+								.exit()//for all DOM elements which do not have data elements
+									.attr("fill","orange");*/
+									
+			
+			//episode 8 Transitions
+			
+			var canvas = d3.select("body")
+							.append("svg")
+							.attr("width",1000)
+							.attr("height",1000);
+								
+			var circle = canvas.append("circle")
+									.attr("cx",100)
+									.attr("cy",100)
+									.attr("r",50)
+									.attr("fill","blue");
+									
+            circle.transition()
+				.duration(1000)//1000 ms
+				.delay(1000)//start after 1 second
+				.attr("cy",500)
+				.attr("fill","red")
+				.attr("r",100)
+				.transition()
+				.attr("cy",300)
+				.attr("cx",300)
+				.attr("r",20)
+				.attr("fill","green")
+				.transition()
+				.attr("cx",100)
+				.attr("cy",100)
+				.attr("r",50)
+				.attr("fill","purple")
+				.each("end",function() { d3.select(this).attr("fill","blue").delay(500); } );//this refers to element we are using ie circle. end - at last what should be done. start - beginning what should be done
+			
+			
+			
+			//var data = [10,20,30,40,50];
+			
+			//episode 10 Loading External data
+			/*
+			d3.json("sampledata.json", function(data) {  //extract data from json file and store in data(function arg)   d3.json OR d3.csv
+						var canvas = d3.select("body").append("svg")
+										.attr("width",1000)
+										.attr("height",1000);
+										
+										
+						canvas.selectAll("rect")
+							.data(data)//argument of function
+							.enter()
+								.append("rect")
+								.attr("width",function (d) { return d.age * 25; })
+								.attr("height",35)
+								.attr("y",function (d, i) { return i*50;})
+								.attr("fill","blue");	
+									
+						canvas.selectAll("text")
+								.data(data)
+								.enter()
+									.append("text")
+									.attr("fill","red")
+									.attr("y",function(d,i) { return i*50 + 35;})
+									.text(function(d) { return d.name; })
+
+						
+					} );
+					*/
+				
+
+			//episode 11
+			/*	
+			var canvas = d3.select("body").append("svg").attr("width",1000).attr("height",1000);
+			
+			var data = [
+					   {x: 10, y: 20},
+					   {x: 30, y: 40},
+					   {x: 50, y: 60}
+					 ];
+					 
+			var group = canvas.append("g")
+							.attr("transform","translate(100,100)");
+							
+			var line = d3.svg.line()
+						.x(function(d) { return d.x;} )
+						.y(function(d) { return d.y;} );
+			
+			group.selectAll("path")
+				.data([data])
+				.enter()
+					.append("path")
+					.attr("d",line)
+					.attr("fill","none")
+					.attr("stroke","#000")
+					.attr("stroke-width",10);
+			
+			*/
+			
+			
+			/*var canvas = d3.select("body").append("svg").attr("width",1000).attr("height",1000);
+			
+			var group = canvas.append("g")
+							.attr("transform","translate(100,100)");
+							
+			var r = 100;
+			var p = Math.PI * 2;//perimeter
+							
+			var arc = d3.svg.arc()//angles in Radians
+						.innerRadius(r-20)
+						.outerRadius(r)
+						.startAngle(0)
+						.endAngle(p-1);//p-1 -> Take off 1 radian 
+			
+			group.append("path")
+				.attr("d",arc);*/
+				
+			
+			/*	
+			var data = [10,50,100,25,75];
+			var r = 250;
+			
+			var color = d3.scale.ordinal()
+							.range(["blue","green","red","orange","purple"]);
+			
+			var canvas = d3.select("body").append("svg").attr("width",1000).attr("height",1000);
+			
+			var group = canvas.append("g")
+							.attr("transform","translate(300,300)");
+
+			var arc = d3.svg.arc()
+						.innerRadius(10)
+						.outerRadius(r)
+						
+			var pie = d3.layout.pie()//PIE Layout
+						.value(function(d) { return d; });
+						
+			var arcs = group.selectAll(".arc")
+							.data(pie(data))
+							.enter()
+								.append("g")
+								.attr("class","arc");
+			
+			arcs.append("path")
+				.attr("d",arc)
+				.attr("fill",function(d) { return color(d.data);});
+			
+			arcs.append("text")
+				.attr("transform",function(d) { return "translate(" + arc.centroid(d) + ")";})
+				.text(function(d) { return d.data; } )
+				.attr("text-anchor","middle")
+				.attr("font-size","1.5em");*/
+			
+		</script>
+	</body>
+</html>	

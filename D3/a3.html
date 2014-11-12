@@ -1,0 +1,163 @@
+<!-- From episode 14 -->
+
+<!doctype html>
+
+<html>
+
+	<head>
+		<title>Data Driven Document</title>
+		<script src = "http://d3js.org/d3.v3.min.js"></script>
+	</head>
+	
+	<body>
+		<script>
+		
+			var width = 1000, height = 1000;
+			var canvas = d3.select("body")
+							.append("svg")
+							.attr("width",width)
+							.attr("height",height)
+							.append("g")
+							.attr("transfrom","translate(100,100)");
+			
+			/* to draw a line
+			var diagonal = d3.svg.diagonal()
+							.source({x:10,y:10}) //starting point
+							.target({x:200,y:300}) //ending point
+			
+			canvas.append("path")
+					.attr("fill","none")
+					.attr("stroke","black")
+					.attr("d",diagonal);
+			*/
+			
+			// Tree and clusters. For tree and clusters take out value attribute n JSON
+			/*
+			var tree = d3.layout.cluster()//d3.layout.tree() - leaves will not be aligned
+						.size([400,400]);
+						
+			d3.json("treedata.json",function(data){
+				var nodes = tree.nodes(data);
+				//console.log(nodes);
+				var links = tree.links(nodes);
+				//console.log(links);
+				var node = canvas.selectAll(".node")
+								.data(nodes)
+								.enter()
+									.append("g")
+									.attr("class","node")
+									.attr("transform",function(d) { return "translate(" + d.y + "," + d.x + ")" } );
+				node.append("circle") 
+					.attr("r",5)
+					//.attr("cx",100)
+					//.attr("cy",100)
+					.attr("fill","steelblue");
+					
+				node.append("text")
+					.text(function(d) { return d.name; })	
+
+				var diagonal = d3.svg.diagonal()
+								.projection(function(d) { return [d.y,d.x];} )
+				
+				canvas.selectAll(".line")
+					.data(links)
+					.enter()
+					.append("path")
+					.attr("class","link")
+					.attr("fill","none")
+					.attr("stroke","red")
+					.attr("d",diagonal);
+			});
+			*/
+			
+			 /*Pack layout */
+			 
+			 
+			 
+			 var pack = d3.layout.pack()
+							.size([width, height-50])
+							.padding(10);
+			d3.json("treedata.json", function(data) {
+					var nodes = pack.nodes(data);
+					//console.log(nodes);
+					var node = canvas.selectAll(".node")
+									.data(nodes)
+									.enter()
+									.append("g")
+									.attr("class","node")
+									.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")";});
+						
+					node.append("circle")
+						.attr("r", function(d) { return d.r;})
+						//.attr("fill","steelblue") for pack layout
+						.attr("fill", function(d) { return d.children?"white":"red";})
+						.attr("opacity",0.25)
+						//.attr("stroke","gray")
+						.attr("fill", function(d){ return d.children?"white":"red";})
+						.attr("stroke-width",2);
+						
+					node.append("text")
+						.text(function(d) {return d.children?"" : d.name;})//to print only leaves
+			})
+			
+			/*Episode 19 Treemap layout */
+			
+			/*
+			var color = d3.scale.category10();//Scale of 10 colors
+			
+			d3.json("treedata.json", function(data) {
+					var treemap = d3.layout.treemap()
+									.size([500,500])
+									.nodes(data)
+					
+					//console.log(treemap)
+					
+					var cells = canvas.selectAll(".cell")
+									.data(treemap)
+									.enter()
+									.append("g")
+									.attr("class","cell")
+					cells.append("rect")
+						.attr("x",function(d) { return d.x; })
+						.attr("y",function(d) { return d.x; })
+						.attr("width",function(d) { return d.dx; })
+						.attr("height",function(d) { return d.dy; })
+						.attr("fill",function(d) { return d.children?null:color(d.parent.name); })
+						.attr("stroke","red")
+						
+					calls.append("text")
+						.attr("x",function(d) { return d.x + d.dx / 2; })
+						.attr("y",function(d) { return d.y + d.dy / 2; })
+						.attr("text-anchor","middle")
+						.text(function(d) { return d.children?null:d.name; })
+			});*/
+			
+			/*Episode 20 Maps */ 
+			
+			/*d3.json("map.json", function(data) {
+					var group = canvas.selectAll("g")
+									.data(data.features)
+									.enter()
+									.append("g")
+					
+					var projection = d3.geo.mercator().scale(700).translate([0,180]);
+					var path = d3.geo.path().projection(projection);
+					var areas = group.append("path")
+									.attr("d",path)
+									.attr("class","area")
+									.attr("fill","blue")
+							
+					group.append("text")
+							.attr("x",function(d) { return path.centroid(d)[0]; })
+							.attr("y",function(d) { return path.centroid(d)[1]; })
+							.attr("text-anchor","middle")
+							.text(function(d) { return d.properties.LNNAMN; })
+									
+			})
+			*/
+			
+							
+							
+		</script>
+	</body>
+</html>
