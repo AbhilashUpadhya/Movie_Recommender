@@ -90,7 +90,7 @@ margin-right: 0;
 				
 				<li class="btn"><a href="userpage.php">My ratings</a></li>
 				<li class="btn"><a href="http://localhost:88/moviepre/predict_by_genre.php">Show By Genre</a></li>				
-				<li class="btn"><a rel="nofollow" href="http://localhost:88/moviepre/index.php">Visualization</a></li>
+				<li class="btn"><a rel="nofollow" href="http://localhost:88/moviepre/d3.php">Visualization</a></li>
 				<li class="btn"><a href="contact.php">Feedback</a></li>
 			</ul>
 		</nav>
