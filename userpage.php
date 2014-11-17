@@ -46,9 +46,9 @@ $m = new MongoClient();
 $db = $m->selectDB('predictionio_appdata');
 $actions = new MongoCollection($db, 'u2iActions');
 $uido = '1_'.$uid;
-$cursor = $actions->find(array('action' => 'rate','uid' => $uido), array('uid','iid','v'))->limit(5);
+$cursor = $actions->find(array('action' => 'rate','uid' => $uido), array('uid','iid','v'))->limit(6);
 $data = array_values(iterator_to_array($cursor));
-
+$data= array_reverse($data);
 $user_genere_list = [];
 //Get User Ratings
 
@@ -91,7 +91,7 @@ tr{
 			<div id="logo" class="left"><a href="#" style="font-weight: 500; color: #1D2D5F;">Welcome,<?php echo $_SESSION['fac_name'] ?> </a></div>
 			<ul class="nav right center-text">
 				
-				<li class="btn"><a href="predict.php">Recommend Movies</a></li>
+				<li class="btn"><a href="http://localhost:88/moviepre/predict.php">Recommend Movies</a></li>
 								
 				
 				
@@ -190,16 +190,23 @@ color: #2D245A;font-size:37px; ">User Rating History</h1>
 
 
 try{
-	
+	 $test =array();
 
 	foreach ($data as $id) {
 		//var_dump($id);
 		$iid = substr($id['iid'], strpos($id['iid'], '_') + 1);
+		if(@in_array($iid, $test)){
+			continue;
+		}
+		array_push($test,$iid);
 		$command = $client->getCommand('get_item', array('pio_iid' => $iid));
 		$movie = $client->execute($command);
 		
+		if(!isset($_SESSION['unseen'])){
+			$_SESSION['unseen'] = array();
+		}		
 
-	
+		array_push($_SESSION['unseen'], $movie['Name']);
 
 
 			echo '<div class="portfolio-group">
@@ -232,9 +239,9 @@ try{
 		<footer>
 			<p>Copyright &copy;Abhilash Abishek Mayur <!-- Credit: www.templatemo.com --></p>
 			<div class="social right">
-				<a href="www.facebook.com"><i class="fa fa-facebook"></i></a>
-				<a href="www.twitter.com"><i class="fa fa-twitter"></i></a>
-				<a href="www.plus.google.com"><i class="fa fa-google-plus"></i></a>
+				<a href="https://www.facebook.com"><i class="fa fa-facebook"></i></a>
+				<a href="https://www.twitter.com"><i class="fa fa-twitter"></i></a>
+				<a href="https://www.plus.google.com"><i class="fa fa-google-plus"></i></a>
 				
 			</div>
 		</footer>

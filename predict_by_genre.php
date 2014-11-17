@@ -1,5 +1,4 @@
 <?php
-ini_set('max_execution_time', 360);
 session_start();
 require 'vendor/autoload.php';
 
@@ -9,55 +8,8 @@ $client = PredictionIOClient::factory(array("appkey" => "kqtMzyrFEbMnQmhwS7Tg87s
 
 
 
-$offset = rand(1, 943);
-$uid = ''.$offset;
-if((isset($_SESSION['user_id'])) && !empty($_SESSION['user_id'])){
-$uid=$_SESSION['user_id'];
-}
 
-$command = $client->getCommand('get_user', array('pio_uid' => $uid));
-$response = $client->execute($command);
-
-
-$m = new MongoClient();
-$db = $m->selectDB('predictionio_appdata');
-$actions = new MongoCollection($db, 'u2iActions');
-$uido = '1_'.$uid;
-$cursor = $actions->find(array('action' => 'rate','uid' => $uido), array('uid','iid','v'))->limit(5);
-$data = array_values(iterator_to_array($cursor));
-
-$user_genere_list = [];
-
-try{
-	
-
-	foreach ($data as $id) {
-		//var_dump($id);
-		$iid = substr($id['iid'], strpos($id['iid'], '_') + 1);
-		$command = $client->getCommand('get_item', array('pio_iid' => $iid));
-		$movie = $client->execute($command);
-	
-		foreach($movie['pio_itypes'] as $genre){
-			$user_genere_list[] = $genre;
-			
-		}
-
-	}
-}
-catch(Exception $e){
-		    echo 'Caught exception: ', $e->getMessage(), "\n";
-}
 $recommended = [];
-try{
-	$client->identify($uid);
-	foreach ($user_genere_list as $genre) {
-		$command = $client->getCommand('itemrec_get_top_n', array('pio_engine' => 'Movie_Engine' ,'pio_itypes' => $genre,'pio_n' => 4));
-		$recommended[$genre] = $client->execute($command);
-	}
-
-}catch(Exception $e){
-		    echo 'Caught exception: ', $e->getMessage(), "\n";
-}
 ?>
 
 <!DOCTYPE html>
@@ -89,7 +41,7 @@ margin-right: 0;
 			<ul class="nav right center-text">
 				
 				<li class="btn"><a href="userpage.php">My ratings</a></li>
-				<li class="btn"><a href="http://localhost:88/moviepre/predict_by_genre.php">Show By Genre</a></li>				
+							<li class="btn"><a href="http://localhost:88/moviepre/predict.php">General</a></li>
 				<li class="btn"><a rel="nofollow" href="http://localhost:88/moviepre/index.php">Visualization</a></li>
 				<li class="btn"><a href="contact.php">Feedback</a></li>
 			</ul>
@@ -97,56 +49,41 @@ margin-right: 0;
 		<div class="content-container">
 		<?php
 	
-		if(! isset($_SESSION['backup'])){
-			$_SESSION['backup']= array();
-			$_SESSION['backup']= $recommended;
-		}else{
-			$recommended=$_SESSION['backup'];
-		}
-
-
-		if(! isset($_SESSION['copyarr']) ) {
-			$_SESSION['copyarr']= array();
-			$_SESSION['copyarr']= $recommended;
-		}else{
-			$_SESSION['copyarr'] = $recommended;
-		}
-
-		echo '<header>
-		These are movies from various genres that you might like.
-	</header>';	
-
-$_SESSION['dthree'] = array();
-$_SESSION['dthree']['name']='Alex Garret';
-$_SESSION['dthree']['children']= array();
-$i=0;
-	foreach ($recommended as $key => $value) {
-		$j=0;
-		$inner_array[$i]['name']= $key;
-
-		
-		foreach (array_values($value['pio_iids']) as $id) {
-		
-			$command = $client->getCommand('get_item', array('pio_iid' => $id));
-			$movie = $client->execute($command);
-				$inner_most_array[$j]['name']=$movie['Name'];
-				$j++;	
+		// $new_recommended= [];
+		// $i=0;
+		// foreach ($recommended as $genre => $rec) {
+		// 	$new_recommended[i]=$genre;
 			
+		// 	$new_recommended_ids=$rec['pio_iids'];
+		// 	$j=0;
+		// 	foreach ($new_recommended_ids as $key) {
+		// 		$command = $client->getCommand('get_item', array('pio_iid' => $key));
+		// 	$movie1 = $client->execute($command);
+		// 		$new_recommended[i][j]=$movie1['Name'];
+		// 		$j++;
+		// 	}
+		// 	$i++;
+		// }
+
+		// var_dump($new_recommended);
+
+		if(isset($_SESSION['copyarr'])){
+
+			$recommended= $_SESSION['copyarr'];
 		}
-		$inner_array[$i]['children']=array_values($inner_most_array); 
-		$i++;
-	}
-	$_SESSION['dthree']['children']=array_values($inner_array);
+
+		
+		
+		foreach ($recommended as $genre => $rec) {
 
 
-
-
-foreach ($recommended as $genre => $rec) {
 
 	$recommended_id = $rec['pio_iids'];
-	//Item Details
-	echo ' 
-			
+	
+	echo '
+			<header>
+				<h1 class="center-text" style="font-weight: bolder;color: #2D245A; font-size: 37px;">Movie recommendations for you in genre : '.$genre.'</h1>
+			</header>
 		<div id="portfolio-content" class="center-text">
 			<div class="portfolio-page" id="page-1">';
 	
@@ -156,21 +93,17 @@ foreach ($recommended as $genre => $rec) {
 
 
 
-			if(! isset($_SESSION['avoid_repeat'])) {
-		 $_SESSION['avoid_repeat']= array();
+			if(! isset($_SESSION['avoid_repeat2'])) {
+		 $_SESSION['avoid_repeat2']= array();
 		}
 	
 			
 
-				if(in_array($movie['Name'], $_SESSION['avoid_repeat'])){
+				if(in_array($movie['Name'], $_SESSION['avoid_repeat2'])){
 					continue;
 				}
 
-
-
-				array_push($_SESSION['avoid_repeat'], $movie['Name']);
-
-
+				array_push($_SESSION['avoid_repeat2'], $movie['Name']);
 
 				if(in_array($movie['Name'], $_SESSION['unseen'])){
 					continue;
@@ -183,8 +116,7 @@ foreach ($recommended as $genre => $rec) {
 						<img src="'.$movie['url'].'" alt="image 8">
 						<div class="detail">
 							<h3 style="text-weight:bolder; font-size:20px;font-family: "Lucida Console", Monaco, monospace">'.$movie['Name'].'</h3>
-							<p style="font-weight: bolder">'.$genre.'</p>
-							<p  style="color:green"> Critics rating - '.$movie['crating'].'/10 <br>
+							<p style="color:green">Critics rating - '.$movie['crating'].'/10 <br>
 							Audience rating - '.$movie['arating'].'/5 <br>
 							</p>
 							
@@ -192,19 +124,17 @@ foreach ($recommended as $genre => $rec) {
 					</a>				
 				</div>
 			';
-			
-
+	
 	}
 	
 }
 
-
-$_SESSION['avoid_repeat']=array();
+$_SESSION['avoid_repeat2']=array();
 
 		?>
 		</div>
 		<footer>
-			<p>Copyright &copy;Abhilash Abishek Mayur</p>
+			<p>Copyright &copy;Abhilash Abishek Mayur <!-- Credit: www.templatemo.com --></p>
 			<div class="social right">
 				<a href="https://www.facebook.com"><i class="fa fa-facebook"></i></a>
 				<a href="https://www.twitter.com"><i class="fa fa-twitter"></i></a>
